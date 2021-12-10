@@ -80,6 +80,7 @@ const displayTransactions = function (transactions) {
 };
 displayTransactions(account1.transactions);
 
+//process: start by using a single account user i.e. 'Maurice Long' and making a username out of that string. Then generalize.
 const createUsernames = function (accs) {
   accs.forEach(function (acc) {
     acc.username = acc.owner

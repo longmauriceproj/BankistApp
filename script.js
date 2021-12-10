@@ -71,7 +71,7 @@ const displayTransactions = function (transactions) {
         <div class="transactions__type transactions__type--${type}">
       ${i + 1} ${type}
         </div>
-        <div class="transactions__value">${trans}</div>
+        <div class="transactions__value">${trans}€</div>
     </div>
   `;
     //insert transaction row elements into container
@@ -82,9 +82,30 @@ displayTransactions(account1.transactions);
 
 const calcDisplayBalance = function (transactions) {
   const balance = transactions.reduce((acc, trans) => acc + trans, 0);
-  labelBalance.textContent = `${balance} EUR`;
+  labelBalance.textContent = `${balance}€`;
 };
 calcDisplayBalance(account1.transactions);
+
+const calcDisplaySummary = function (transactions) {
+  const incomes = transactions
+    .filter(trans => trans > 0)
+    .reduce((acc, trans) => acc + trans, 0);
+  labelSumIn.textContent = `${incomes}€`;
+
+  const out = transactions
+    .filter(trans => trans < 0)
+    .reduce((acc, trans) => acc + trans, 0);
+  labelSumOut.textContent = `${Math.abs(out)}€`;
+
+  //chaining methods can create performance issues, try to reduce number of methods to chain. Also bad practice to chain methods that mutate arrays
+  const interest = transactions
+    .filter(trans => trans > 0)
+    .map(deposit => (deposit * 1.2) / 100) //NOTE: needs to change later. current interest rate is hard coded to account1 value
+    .filter(int => int >= 1) //Bank only pays out interest if interest is at least 1€
+    .reduce((acc, int) => acc + int, 0);
+  labelSumInterest.textContent = `${interest}€`;
+};
+calcDisplaySummary(account1.transactions);
 //process: start by using a single account user i.e. 'Maurice Long' and making a username out of that string. Then generalize.
 const createUsernames = function (accs) {
   accs.forEach(function (acc) {

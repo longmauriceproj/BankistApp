@@ -64,14 +64,14 @@ const displayTransactions = function (transactions) {
   //Empty container - innerHTML is similar to .textContent but returns all HTML code
   containerTransactions.innerHTML = '';
   //loop through account transactions to create transaction row elements
-  transactions.forEach(function (mov, i) {
-    const type = mov > 0 ? 'deposit' : 'withdrawal';
+  transactions.forEach(function (trans, i) {
+    const type = trans > 0 ? 'deposit' : 'withdrawal';
     const html = `
     <div class="transactions__row">
         <div class="transactions__type transactions__type--${type}">
       ${i + 1} ${type}
         </div>
-        <div class="transactions__value">${mov}</div>
+        <div class="transactions__value">${trans}</div>
     </div>
   `;
     //insert transaction row elements into container
@@ -79,3 +79,14 @@ const displayTransactions = function (transactions) {
   });
 };
 displayTransactions(account1.transactions);
+
+const createUsernames = function (accs) {
+  accs.forEach(function (acc) {
+    acc.username = acc.owner
+      .toLowerCase()
+      .split(' ')
+      .map(name => name[0])
+      .join('');
+  });
+};
+createUsernames(accounts);

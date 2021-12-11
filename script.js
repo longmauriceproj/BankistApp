@@ -60,11 +60,14 @@ const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
 //NOTE: better to pass data into function instead of writing in global context
-const displayTransactions = function (transactions) {
+const displayTransactions = function (transactions, sort = false) {
   //Empty container - innerHTML is similar to .textContent but returns all HTML code
   containerTransactions.innerHTML = '';
   //loop through account transactions to create transaction row elements
-  transactions.forEach(function (trans, i) {
+
+  const movs = sort ? transactions.slice().sort((a, b) => a - b) : transactions;
+
+  movs.forEach(function (trans, i) {
     const type = trans > 0 ? 'deposit' : 'withdrawal';
     const html = `
     <div class="transactions__row">
@@ -221,4 +224,11 @@ btnClose.addEventListener('click', function (e) {
     containerApp.style.opacity = 0;
     labelWelcome.textContent = `Log in to get started`;
   }
+});
+
+let sorted = false;
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault();
+  displayTransactions(currentAccount.transactions, !sorted);
+  sorted = !sorted;
 });

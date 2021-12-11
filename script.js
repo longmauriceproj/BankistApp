@@ -18,7 +18,7 @@ const account2 = {
 };
 
 const account3 = {
-  owner: 'Steven Thomas Williams',
+  owner: 'Kaleem Hawa',
   transactions: [200, -200, 340, -300, -20, 50, 400, -460],
   interestRate: 0.7,
   pin: 3333,
@@ -78,13 +78,11 @@ const displayTransactions = function (transactions) {
     containerTransactions.insertAdjacentHTML('afterbegin', html);
   });
 };
-displayTransactions(account1.transactions);
 
 const calcDisplayBalance = function (transactions) {
   const balance = transactions.reduce((acc, trans) => acc + trans, 0);
   labelBalance.textContent = `${balance}€`;
 };
-calcDisplayBalance(account1.transactions);
 
 const calcDisplaySummary = function (transactions) {
   const incomes = transactions
@@ -105,7 +103,7 @@ const calcDisplaySummary = function (transactions) {
     .reduce((acc, int) => acc + int, 0);
   labelSumInterest.textContent = `${interest}€`;
 };
-calcDisplaySummary(account1.transactions);
+
 //process: start by using a single account user i.e. 'Maurice Long' and making a username out of that string. Then generalize.
 const createUsernames = function (accs) {
   accs.forEach(function (acc) {
@@ -117,3 +115,33 @@ const createUsernames = function (accs) {
   });
 };
 createUsernames(accounts);
+
+//Event Handler
+let currentAccount;
+
+btnLogin.addEventListener('click', function (e) {
+  // Prevent form from submitting
+  e.preventDefault();
+  //look for account associated with username inputted in login
+  currentAccount = accounts.find(
+    acc => acc.username === inputLoginUsername.value
+  );
+  //check if pin input is same as pin associated with account
+  //use optional chaining ?. to make sure account exist
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    //display welcome message
+    labelWelcome.textContent = `Welcome back, ${
+      currentAccount.owner.split(' ')[0]
+    }`;
+    //display UI
+    containerApp.style.opacity = 100;
+    //display balance
+    calcDisplayBalance(currentAccount.transactions);
+    //display summary
+    calcDisplaySummary(currentAccount.transactions);
+    //display transactions
+    displayTransactions(currentAccount.transactions);
+    //NOTE: will work on timer later
+    console.log('LOGIN');
+  }
+});

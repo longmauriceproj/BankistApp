@@ -79,9 +79,9 @@ const displayTransactions = function (transactions) {
   });
 };
 
-const calcDisplayBalance = function (transactions) {
-  const balance = transactions.reduce((acc, trans) => acc + trans, 0);
-  labelBalance.textContent = `${balance}€`;
+const calcDisplayBalance = function (acc) {
+  acc.balance = acc.transactions.reduce((acc, trans) => acc + trans, 0);
+  labelBalance.textContent = `${acc.balance}€`;
 };
 
 const calcDisplaySummary = function (acc) {
@@ -117,6 +117,15 @@ const createUsernames = function (accs) {
 };
 createUsernames(accounts);
 
+const updateUI = function (acc) {
+  //display balance
+  calcDisplayBalance(acc);
+  //display summary
+  calcDisplaySummary(acc);
+  //display transactions
+  displayTransactions(acc.transactions);
+};
+
 //Event Handler
 let currentAccount;
 
@@ -136,15 +145,39 @@ btnLogin.addEventListener('click', function (e) {
     }`;
     //display UI
     containerApp.style.opacity = 100;
-    //display balance
-    calcDisplayBalance(currentAccount.transactions);
-    //display summary
-    calcDisplaySummary(currentAccount);
-    //display transactions
-    displayTransactions(currentAccount.transactions);
+    updateUI(currentAccount);
     //NOTE: will work on timer later
-    //Emptying input fields
+    //emptying input fields
     inputLoginPin.value = inputLoginUsername.value = '';
     inputLoginPin.blur();
+  }
+});
+
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  const amount = Number(inputTransferAmount.value);
+  const receiverAcc = accounts.find(
+    acc => acc.username === inputTransferTo.value
+  );
+  //empty input fields
+  inputTransferAmount.value = inputTransferTo.value = '';
+
+  //check if input amount is positive
+  //check if current account has enough funds
+  //check that recipient is not current user
+  //check if receiver account is valid
+  if (
+    amount > 0 &&
+    receiverAcc &&
+    amount <= currentAccount.balance &&
+    receiverAcc.username !== currentAccount.username
+  ) {
+    //add negative transaction to current user
+    currentAccount.transactions.push(-amount);
+    //add positive transaction to recipient
+    receiverAcc.transactions.push(amount);
+    //update UI
+    updateUI(currentAccount);
   }
 });

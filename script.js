@@ -132,13 +132,17 @@ let currentAccount;
 btnLogin.addEventListener('click', function (e) {
   // Prevent form from submitting
   e.preventDefault();
+
+  const userInput = inputLoginUsername.value;
+  const pinInput = Number(inputLoginPin.value);
+  //emptying input fields
+  inputLoginPin.value = inputLoginUsername.value = '';
+
   //look for account associated with username inputted in login
-  currentAccount = accounts.find(
-    acc => acc.username === inputLoginUsername.value
-  );
+  currentAccount = accounts.find(acc => acc.username === userInput);
   //check if pin input is same as pin associated with account
   //use optional chaining ?. to make sure account exist
-  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+  if (currentAccount?.pin === pinInput) {
     //display welcome message
     labelWelcome.textContent = `Welcome back, ${
       currentAccount.owner.split(' ')[0]
@@ -147,8 +151,8 @@ btnLogin.addEventListener('click', function (e) {
     containerApp.style.opacity = 100;
     updateUI(currentAccount);
     //NOTE: will work on timer later
-    //emptying input fields
-    inputLoginPin.value = inputLoginUsername.value = '';
+
+    //make the pin input field not focused
     inputLoginPin.blur();
   }
 });
@@ -179,5 +183,24 @@ btnTransfer.addEventListener('click', function (e) {
     receiverAcc.transactions.push(amount);
     //update UI
     updateUI(currentAccount);
+  }
+});
+
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault();
+  //check credentials
+  if (
+    currentAccount.username === inputCloseUsername.value &&
+    currentAccount.pin === Number(inputClosePin.value)
+  ) {
+    const index = accounts.findIndex(
+      acc => acc.username === currentAccount.username
+    );
+    //delete user from data
+    accounts.splice(index, 1);
+    //log user out (hide UI)
+    inputClosePin.value = inputCloseUsername.value = '';
+    containerApp.style.opacity = 0;
+    labelWelcome.textContent = `Log in to get started`;
   }
 });

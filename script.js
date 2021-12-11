@@ -186,6 +186,24 @@ btnTransfer.addEventListener('click', function (e) {
   }
 });
 
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  const amount = Number(inputLoanAmount.value);
+  //NOTE: logic allows user to cheat as loans create higher deposit limit
+  if (
+    amount > 0 &&
+    currentAccount.transactions.some(trans => trans >= amount * 0.1)
+  ) {
+    //add positve transaction to current data
+    currentAccount.transactions.push(amount);
+    //update UI
+    updateUI(currentAccount);
+    //clear input
+    inputLoanAmount.value = '';
+  }
+});
+
 btnClose.addEventListener('click', function (e) {
   e.preventDefault();
   //check credentials

@@ -84,23 +84,24 @@ const calcDisplayBalance = function (transactions) {
   labelBalance.textContent = `${balance}€`;
 };
 
-const calcDisplaySummary = function (transactions) {
-  const incomes = transactions
+const calcDisplaySummary = function (acc) {
+  const incomes = acc.transactions
     .filter(trans => trans > 0)
     .reduce((acc, trans) => acc + trans, 0);
   labelSumIn.textContent = `${incomes}€`;
 
-  const out = transactions
+  const out = acc.transactions
     .filter(trans => trans < 0)
     .reduce((acc, trans) => acc + trans, 0);
   labelSumOut.textContent = `${Math.abs(out)}€`;
 
   //chaining methods can create performance issues, try to reduce number of methods to chain. Also bad practice to chain methods that mutate arrays
-  const interest = transactions
+  const interest = acc.transactions
     .filter(trans => trans > 0)
-    .map(deposit => (deposit * 1.2) / 100) //NOTE: needs to change later. current interest rate is hard coded to account1 value
+    .map(deposit => (deposit * acc.interestRate) / 100)
     .filter(int => int >= 1) //Bank only pays out interest if interest is at least 1€
-    .reduce((acc, int) => acc + int, 0);
+    .reduce((acc, int) => acc + int, 0)
+    .toFixed(2);
   labelSumInterest.textContent = `${interest}€`;
 };
 
@@ -138,10 +139,12 @@ btnLogin.addEventListener('click', function (e) {
     //display balance
     calcDisplayBalance(currentAccount.transactions);
     //display summary
-    calcDisplaySummary(currentAccount.transactions);
+    calcDisplaySummary(currentAccount);
     //display transactions
     displayTransactions(currentAccount.transactions);
     //NOTE: will work on timer later
-    console.log('LOGIN');
+    //Emptying input fields
+    inputLoginPin.value = inputLoginUsername.value = '';
+    inputLoginPin.blur();
   }
 });

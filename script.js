@@ -72,7 +72,7 @@ const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
 //Functions
-const formatTransactionsDate = function (date) {
+const formatTransactionsDate = function (date, locale) {
   const calcDaysPassed = (date1, date2) =>
     Math.round(Math.abs(date1 - date2) / (1000 * 60 * 60 * 24));
 
@@ -82,10 +82,12 @@ const formatTransactionsDate = function (date) {
   if (daysPassed === 1) return 'Yesterday';
   if (daysPassed <= 7) return `${daysPassed} days ago`;
 
-  const day = `${date.getDate()}`.padStart(2, 0);
-  const month = `${date.getMonth()}`.padStart(2, 0);
-  const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
+  // const day = `${date.getDate()}`.padStart(2, 0);
+  // const month = `${date.getMonth()}`.padStart(2, 0);
+  // const year = date.getFullYear();
+  // return `${day}/${month}/${year}`;
+
+  return new Intl.DateTimeFormat(locale).format(date);
 };
 
 //NOTE: better to pass data into function instead of writing in global context
@@ -101,7 +103,7 @@ const displayTransactions = function (acc, sort = false) {
   movs.forEach(function (trans, i) {
     const type = trans > 0 ? 'deposit' : 'withdrawal';
     const date = new Date(acc.transactionsDates[i]);
-    const displayDate = formatTransactionsDate(date);
+    const displayDate = formatTransactionsDate(date, acc.locale);
     const html = `
     <div class="transactions__row">
         <div class="transactions__type transactions__type--${type}">
@@ -189,12 +191,26 @@ btnLogin.addEventListener('click', function (e) {
     //NOTE: will work on timer later
     //display current date and time (will implement timer later)
     const now = new Date();
-    const day = `${now.getDate()}`.padStart(2, 0);
-    const month = `${now.getMonth()}`.padStart(2, 0);
-    const year = now.getFullYear();
-    const hour = `${now.getHours()}`.padStart(2, 0);
-    const min = `${now.getMinutes()}`.padStart(2, 0);
-    labelDate.textContent = `${day}/${month}/${year}, ${hour}:${min}`;
+    const options = {
+      hour: 'numeric',
+      minute: 'numeric',
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric',
+      // weekday: 'long',
+    };
+    //const locale = navigator.language;
+    //this sets the locale to the user browser setting
+
+    // const day = `${now.getDate()}`.padStart(2, 0);
+    // const month = `${now.getMonth()}`.padStart(2, 0);
+    // const year = now.getFullYear();
+    // const hour = `${now.getHours()}`.padStart(2, 0);
+    // const min = `${now.getMinutes()}`.padStart(2, 0);
+    labelDate.textContent = new Intl.DateTimeFormat(
+      `${currentAccount.locale}`,
+      options
+    ).format(now);
     //make the pin input field not focused
     inputLoginPin.blur();
   }

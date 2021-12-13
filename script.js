@@ -86,7 +86,7 @@ const displayTransactions = function (transactions, sort = false) {
         <div class="transactions__type transactions__type--${type}">
       ${i + 1} ${type}
         </div>
-        <div class="transactions__value">${trans}€</div>
+        <div class="transactions__value">${trans.toFixed(2)}€</div>
     </div>
   `;
     //insert transaction row elements into container
@@ -96,28 +96,27 @@ const displayTransactions = function (transactions, sort = false) {
 
 const calcDisplayBalance = function (acc) {
   acc.balance = acc.transactions.reduce((acc, trans) => acc + trans, 0);
-  labelBalance.textContent = `${acc.balance}€`;
+  labelBalance.textContent = `${acc.balance.toFixed(2)}€`;
 };
 
 const calcDisplaySummary = function (acc) {
   const incomes = acc.transactions
     .filter(trans => trans > 0)
     .reduce((acc, trans) => acc + trans, 0);
-  labelSumIn.textContent = `${incomes}€`;
+  labelSumIn.textContent = `${incomes.toFixed(2)}€`;
 
   const out = acc.transactions
     .filter(trans => trans < 0)
     .reduce((acc, trans) => acc + trans, 0);
-  labelSumOut.textContent = `${Math.abs(out)}€`;
+  labelSumOut.textContent = `${Math.abs(out).toFixed(2)}€`;
 
   //chaining methods can create performance issues, try to reduce number of methods to chain. Also bad practice to chain methods that mutate arrays
   const interest = acc.transactions
     .filter(trans => trans > 0)
     .map(deposit => (deposit * acc.interestRate) / 100)
     .filter(int => int >= 1) //Bank only pays out interest if interest is at least 1€
-    .reduce((acc, int) => acc + int, 0)
-    .toFixed(2);
-  labelSumInterest.textContent = `${interest}€`;
+    .reduce((acc, int) => acc + int, 0);
+  labelSumInterest.textContent = `${interest.toFixed(2)}€`;
 };
 
 //process: start by using a single account user i.e. 'Maurice Long' and making a username out of that string. Then generalize.
@@ -204,7 +203,7 @@ btnTransfer.addEventListener('click', function (e) {
 btnLoan.addEventListener('click', function (e) {
   e.preventDefault();
 
-  const amount = Number(inputLoanAmount.value);
+  const amount = Math.floor(inputLoanAmount.value);
   //NOTE: logic allows user to cheat as loans create higher deposit limit
   if (
     amount > 0 &&

@@ -9,7 +9,7 @@ const account1 = {
   interestRate: 1.2, // %
   pin: 1111,
 
-  movementsDates: [
+  transactionsDates: [
     '2019-11-18T21:31:17.178Z',
     '2019-12-23T07:42:02.383Z',
     '2020-01-28T09:15:04.904Z',
@@ -29,7 +29,7 @@ const account2 = {
   interestRate: 1.5,
   pin: 2222,
 
-  movementsDates: [
+  transactionsDates: [
     '2019-11-01T13:15:33.035Z',
     '2019-11-30T09:48:16.867Z',
     '2019-12-25T06:04:23.907Z',
@@ -72,20 +72,30 @@ const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
 //NOTE: better to pass data into function instead of writing in global context
-const displayTransactions = function (transactions, sort = false) {
+const displayTransactions = function (acc, sort = false) {
   //Empty container - innerHTML is similar to .textContent but returns all HTML code
   containerTransactions.innerHTML = '';
   //loop through account transactions to create transaction row elements
 
-  const movs = sort ? transactions.slice().sort((a, b) => a - b) : transactions;
+  const movs = sort
+    ? acc.transactions.slice().sort((a, b) => a - b)
+    : acc.transactions;
 
   movs.forEach(function (trans, i) {
     const type = trans > 0 ? 'deposit' : 'withdrawal';
+
+    const date = new Date(acc.transactionsDates[i]);
+    const day = `${date.getDate()}`.padStart(2, 0);
+    const month = `${date.getMonth()}`.padStart(2, 0);
+    const year = date.getFullYear();
+    const displayDate = `${day}/${month}/${year}`;
+
     const html = `
     <div class="transactions__row">
         <div class="transactions__type transactions__type--${type}">
       ${i + 1} ${type}
         </div>
+        <div class="transactions__date">${displayDate}</div>
         <div class="transactions__value">${trans.toFixed(2)}€</div>
     </div>
   `;
@@ -137,7 +147,7 @@ const updateUI = function (acc) {
   //display summary
   calcDisplaySummary(acc);
   //display transactions
-  displayTransactions(acc.transactions);
+  displayTransactions(acc);
 };
 
 //Event Handler
@@ -165,7 +175,14 @@ btnLogin.addEventListener('click', function (e) {
     containerApp.style.opacity = 100;
     updateUI(currentAccount);
     //NOTE: will work on timer later
-
+    //display current date and time (will implement timer later)
+    const now = new Date();
+    const day = `${now.getDate()}`.padStart(2, 0);
+    const month = `${now.getMonth()}`.padStart(2, 0);
+    const year = now.getFullYear();
+    const hour = `${now.getHours()}`.padStart(2, 0);
+    const min = `${now.getMinutes()}`.padStart(2, 0);
+    labelDate.textContent = `${day}/${month}/${year}, ${hour}:${min}`;
     //make the pin input field not focused
     inputLoginPin.blur();
   }
@@ -195,6 +212,9 @@ btnTransfer.addEventListener('click', function (e) {
     currentAccount.transactions.push(-amount);
     //add positive transaction to recipient
     receiverAcc.transactions.push(amount);
+    //add transfer date
+    currentAccount.transactionsDates.push(new Date().toISOString());
+    receiverAcc.transactionsDates.push(new Date().toISOString());
     //update UI
     updateUI(currentAccount);
   }
@@ -211,6 +231,8 @@ btnLoan.addEventListener('click', function (e) {
   ) {
     //add positve transaction to current data
     currentAccount.transactions.push(amount);
+    //add transfer date
+    currentAccount.transactionsDates.push(new Date().toISOString());
     //update UI
     updateUI(currentAccount);
     //clear input
@@ -240,6 +262,6 @@ btnClose.addEventListener('click', function (e) {
 let sorted = false;
 btnSort.addEventListener('click', function (e) {
   e.preventDefault();
-  displayTransactions(currentAccount.transactions, !sorted);
+  displayTransactions(currentAccount, !sorted);
   sorted = !sorted;
 });

@@ -90,6 +90,13 @@ const formatTransactionsDate = function (date, locale) {
   return new Intl.DateTimeFormat(locale).format(date);
 };
 
+const formatCur = function (value, locale, currency) {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: currency,
+  }).format(value);
+};
+
 //NOTE: better to pass data into function instead of writing in global context
 const displayTransactions = function (acc, sort = false) {
   //Empty container - innerHTML is similar to .textContent but returns all HTML code
@@ -104,13 +111,16 @@ const displayTransactions = function (acc, sort = false) {
     const type = trans > 0 ? 'deposit' : 'withdrawal';
     const date = new Date(acc.transactionsDates[i]);
     const displayDate = formatTransactionsDate(date, acc.locale);
+
+    const formattedTrans = formatCur(trans, acc.locale, acc.currency);
+
     const html = `
     <div class="transactions__row">
         <div class="transactions__type transactions__type--${type}">
       ${i + 1} ${type}
         </div>
         <div class="transactions__date">${displayDate}</div>
-        <div class="transactions__value">${trans.toFixed(2)}€</div>
+        <div class="transactions__value">${formattedTrans}</div>
     </div>
   `;
     //insert transaction row elements into container
@@ -120,19 +130,19 @@ const displayTransactions = function (acc, sort = false) {
 
 const calcDisplayBalance = function (acc) {
   acc.balance = acc.transactions.reduce((acc, trans) => acc + trans, 0);
-  labelBalance.textContent = `${acc.balance.toFixed(2)}€`;
+  labelBalance.textContent = formatCur(acc.balance, acc.locale, acc.currency);
 };
 
 const calcDisplaySummary = function (acc) {
   const incomes = acc.transactions
     .filter(trans => trans > 0)
     .reduce((acc, trans) => acc + trans, 0);
-  labelSumIn.textContent = `${incomes.toFixed(2)}€`;
+  labelSumIn.textContent = formatCur(incomes, acc.locale, acc.currency);
 
   const out = acc.transactions
     .filter(trans => trans < 0)
     .reduce((acc, trans) => acc + trans, 0);
-  labelSumOut.textContent = `${Math.abs(out).toFixed(2)}€`;
+  labelSumOut.textContent = formatCur(out, acc.locale, acc.currency);
 
   //chaining methods can create performance issues, try to reduce number of methods to chain. Also bad practice to chain methods that mutate arrays
   const interest = acc.transactions
@@ -140,7 +150,7 @@ const calcDisplaySummary = function (acc) {
     .map(deposit => (deposit * acc.interestRate) / 100)
     .filter(int => int >= 1) //Bank only pays out interest if interest is at least 1€
     .reduce((acc, int) => acc + int, 0);
-  labelSumInterest.textContent = `${interest.toFixed(2)}€`;
+  labelSumInterest.textContent = formatCur(interest, acc.locale, acc.currency);
 };
 
 //process: start by using a single account user i.e. 'Maurice Long' and making a username out of that string. Then generalize.

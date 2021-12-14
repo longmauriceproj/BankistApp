@@ -174,8 +174,32 @@ const updateUI = function (acc) {
   displayTransactions(acc);
 };
 
+//start timer
+const startLogOutTimer = function () {
+  const tick = function () {
+    const min = String(Math.trunc(time / 60)).padStart(2, 0);
+    const sec = String(time % 60).padStart(2, 0);
+    //in each call, print the remaining time to UI
+    labelTimer.textContent = `${min}:${sec}`;
+    //when count down is finished, stop timer and log out user
+    if (time === 0) {
+      clearInterval(timer);
+      containerApp.style.opacity = 0;
+      labelWelcome.textContent = `Log in to get started`;
+    }
+    //decrease 1s
+    time--;
+  };
+  //set time to 10 minutes
+  let time = 600;
+  //call the timer every seconds
+  tick();
+  const timer = setInterval(tick, 1000);
+  return timer;
+};
+
 //Event Handler
-let currentAccount;
+let currentAccount, timer;
 
 btnLogin.addEventListener('click', function (e) {
   // Prevent form from submitting
@@ -223,6 +247,10 @@ btnLogin.addEventListener('click', function (e) {
     ).format(now);
     //make the pin input field not focused
     inputLoginPin.blur();
+
+    //Timer
+    if (timer) clearInterval(timer);
+    timer = startLogOutTimer();
   }
 });
 
@@ -255,6 +283,9 @@ btnTransfer.addEventListener('click', function (e) {
     receiverAcc.transactionsDates.push(new Date().toISOString());
     //update UI
     updateUI(currentAccount);
+    //reset timer
+    clearInterval(timer);
+    timer = startLogOutTimer();
   }
 });
 
@@ -267,15 +298,20 @@ btnLoan.addEventListener('click', function (e) {
     amount > 0 &&
     currentAccount.transactions.some(trans => trans >= amount * 0.1)
   ) {
-    //add positve transaction to current data
-    currentAccount.transactions.push(amount);
-    //add transfer date
-    currentAccount.transactionsDates.push(new Date().toISOString());
-    //update UI
-    updateUI(currentAccount);
-    //clear input
-    inputLoanAmount.value = '';
+    setTimeout(function () {
+      //add positve transaction to current data
+      currentAccount.transactions.push(amount);
+      //add transfer date
+      currentAccount.transactionsDates.push(new Date().toISOString());
+      //update UI
+      updateUI(currentAccount);
+    }, 2500);
   }
+  //clear input
+  inputLoanAmount.value = '';
+  //reset timer
+  clearTimeout(timer);
+  timer = startLogOutTimer();
 });
 
 btnClose.addEventListener('click', function (e) {
